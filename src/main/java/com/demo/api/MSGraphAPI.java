@@ -14,6 +14,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.demo.model.msgraph.Rooms;
+import com.demo.model.msgraph.events.Events;
 import com.demo.utils.HttpClientHelper;
 import com.demo.utils.JSONHelper;
 import com.demo.utils.User;
@@ -94,7 +95,6 @@ public class MSGraphAPI {
         conn.setRequestProperty("Accept", "application/json;odata.metadata=full");
         
         String goodRespStr = HttpClientHelper.getResponseStringFromConn(conn, true);
-        System.out.println("Response for All Rooms - " + goodRespStr);
 
         ObjectMapper objectMapper = new ObjectMapper();
         Rooms rooms = objectMapper.readValue(goodRespStr, Rooms.class);
@@ -114,24 +114,12 @@ public class MSGraphAPI {
         conn.setRequestProperty("Accept", "application/json;odata.metadata=full");
         //conn.setRequestProperty("Prefer", "outlook.timezone=\"Pacific Standard Time\"");
 
-        
         String goodRespStr = HttpClientHelper.getResponseStringFromConn(conn, true);
-        System.out.println("Response for All Events - " + goodRespStr);
 
-        int responseCode = conn.getResponseCode();
-        JSONObject response = HttpClientHelper.processGoodRespStr(responseCode, goodRespStr);
-        JSONArray users = new JSONArray();
-
-        users = JSONHelper.fetchDirectoryObjectJSONArray(response);
-        StringBuilder builder = new StringBuilder();
-        User user = null;
-        for (int i = 0; i < users.length(); i++) {
-            JSONObject thisUserJSONObject = users.optJSONObject(i);
-            user = new User();
-            JSONHelper.convertJSONObjectToDirectoryObject(thisUserJSONObject, user);
-            builder.append(user.getUserPrincipalName() + "\n");
-        }
-        return builder.toString();
+        ObjectMapper objectMapper = new ObjectMapper();
+        Events events = objectMapper.readValue(goodRespStr, Events.class);
+        
+        return events.toString();
 	}
 	
 	public boolean deleteEvent(String accessToken, String tenant, String id) throws IOException {
