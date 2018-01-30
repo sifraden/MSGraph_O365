@@ -1,4 +1,4 @@
-package com.demo.model.msgraph;
+package com.demo.model.msgraph.rooms;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
