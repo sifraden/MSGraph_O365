@@ -1,50 +1,54 @@
 package com.demo.ms;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.Base64;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
-import javax.naming.ServiceUnavailableException;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
-import com.demo.api.MSGraphAPI;
-import com.demo.utils.HttpClientHelper;
-import com.demo.utils.JSONHelper;
-import com.demo.utils.User;
-import com.microsoft.aad.adal4j.AuthenticationContext;
+import com.demo.api.msgraph.MSGraphAPIService;
+import com.demo.api.myseat.MySeatAPIService;
 import com.microsoft.aad.adal4j.AuthenticationResult;
 
+@Configuration
+@ComponentScan(basePackages = "com.demo")
+@PropertySource("classpath:application.properties")
 public class App {
 	private static final Logger LOG = LoggerFactory.getLogger(App.class);
 
-	private final static String AUTHORITY = "https://login.microsoftonline.com/common";
-	private final static String CLIENT_ID = "fae922e0-45d7-4fab-9cc8-0d038c8f1ce1"; // PWD: dgyPCK09*uhbvCCLF171}?*
-	private final static String RESOURCE = "https://graph.microsoft.com";
-	private final static String USERNAME = "Soufiane@myseatsas.onmicrosoft.com";
-	private final static String PASSWORD = "IngoreWegrind00";
+	private static String AUTHORITY;
+	private static String CLIENT_ID; // PWD: dgyPCK09*uhbvCCLF171}?*
+	private static String RESOURCE;
+	private static String USERNAME;
+	private static String PASSWORD;
+	
+	
+	@Bean
+	public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
+		return new PropertySourcesPlaceholderConfigurer();
+	}
 
 	public static void main(String[] args) {
 		LOG.info("*****************************************************");
 		LOG.info("***************  Starting Process ... ***************");
 		LOG.info("*****************************************************");
+		ApplicationContext context = new AnnotationConfigApplicationContext(App.class);
+		MSGraphAPIService msGraphApi = context.getBean(MSGraphAPIService.class);
+		MySeatAPIService myseatApi = context.getBean(MySeatAPIService.class);
 
-		MSGraphAPI msGraphApi = new MSGraphAPI();
 		AuthenticationResult result;
 		try {
-			result = msGraphApi.getAccessTokenFromUserCredentials(USERNAME, PASSWORD);
-			LOG.info("Access Token - " + result.getAccessToken());
-			LOG.info("Refresh Token - " + result.getRefreshToken());
-			LOG.info("ID Token - " + result.getIdToken());
+			result = msGraphApi.getAccessTokenFromUserCredentials(getUSERNAME(), getPASSWORD());
+			LOG.info("Access Token - {}", result.getAccessToken());
+			LOG.info("Refresh Token - {}", result.getRefreshToken());
+			LOG.info("ID Token - {}", result.getIdToken());
+			LOG.info("MYSEAT {}", myseatApi.getChairs("TfkycL8tgKKbkEHEXlyzeKKRZ0pGtSKdZWC1xAkE"));
 			LOG.info("*****************************************************");
 			LOG.info("***********************   ROOMS   *******************");
 			LOG.info(msGraphApi.getListRooms(result.getAccessToken(), "myseatsas.onmicrosoft.com"));
@@ -81,5 +85,60 @@ public class App {
 		}
 
 	}
+
+	public static String getAUTHORITY() {
+		return AUTHORITY;
+	}
+
+	@Value( "${microsoft.graph.api.authority}" )
+	public void setAUTHORITY(String aUTHORITY) {
+		AUTHORITY = aUTHORITY;
+	}
+
+	public static String getUSERNAME() {
+		return USERNAME;
+	}
+
+	@Value( "${microsoft.graph.api.username}" )
+	public void setUSERNAME(String uSERNAME) {
+		USERNAME = uSERNAME;
+	}
+
+	public static String getPASSWORD() {
+		return PASSWORD;
+	}
+
+	@Value( "${microsoft.graph.api.password}" )
+	public void setPASSWORD(String pASSWORD) {
+		PASSWORD = pASSWORD;
+	}
+
+	public static String getClientId() {
+		return CLIENT_ID;
+	}
+	public static String getCLIENT_ID() {
+		return CLIENT_ID;
+	}
+
+	@Value( "${microsoft.graph.api.client.id}" )
+	public void setCLIENT_ID(String cLIENT_ID) {
+		CLIENT_ID = cLIENT_ID;
+	}
+
+	public static String getRESOURCE() {
+		return RESOURCE;
+	}
+
+	@Value( "${microsoft.graph.api.resource}" )
+	public static void setRESOURCE(String rESOURCE) {
+		RESOURCE = rESOURCE;
+	}
+
+	public static String getResource() {
+		return RESOURCE;
+	}
+	
+	
+	
 
 }

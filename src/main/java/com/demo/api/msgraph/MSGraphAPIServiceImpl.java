@@ -1,4 +1,4 @@
-package com.demo.api;
+package com.demo.api.msgraph;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -14,13 +14,14 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
-import com.demo.model.msgraph.rooms.Room;
-import com.demo.model.msgraph.rooms.Rooms;
-import com.demo.ms.App;
 import com.demo.model.msgraph.events.Attendees;
 import com.demo.model.msgraph.events.Event;
 import com.demo.model.msgraph.events.Events;
+import com.demo.model.msgraph.rooms.Room;
+import com.demo.model.msgraph.rooms.Rooms;
 import com.demo.utils.HttpClientHelper;
 import com.demo.utils.JSONHelper;
 import com.demo.utils.User;
@@ -28,16 +29,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.aad.adal4j.AuthenticationContext;
 import com.microsoft.aad.adal4j.AuthenticationResult;
 
-public class MSGraphAPI {
-	private static final Logger LOG = LoggerFactory.getLogger(MSGraphAPI.class);
+@Service
+public class MSGraphAPIServiceImpl implements MSGraphAPIService {
+	private static final Logger LOG = LoggerFactory.getLogger(MSGraphAPIServiceImpl.class);
 
-	private final static String AUTHORITY = "https://login.microsoftonline.com/common";
-	private final static String CLIENT_ID = "fae922e0-45d7-4fab-9cc8-0d038c8f1ce1"; // PWD: dgyPCK09*uhbvCCLF171}?*
-	private final static String RESOURCE = "https://graph.microsoft.com";
-	private final static String USERNAME = "Soufiane@myseatsas.onmicrosoft.com";
-	private final static String PASSWORD = "IngoreWegrind00";
+	@Value( "${microsoft.graph.api.authority}" )
+	private String AUTHORITY;
+	@Value( "${microsoft.graph.api.client.id}" )
+	private String CLIENT_ID;
+	@Value( "${microsoft.graph.api.resource}" )
+	private String RESOURCE;
 
-	public MSGraphAPI() {
+	public MSGraphAPIServiceImpl() {
 	}
 
 	public AuthenticationResult getAccessTokenFromUserCredentials(String username, String password) throws Exception {
