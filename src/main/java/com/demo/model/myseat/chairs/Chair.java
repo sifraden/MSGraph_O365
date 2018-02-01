@@ -1,4 +1,4 @@
-package com.demo.model.myseat;
+package com.demo.model.myseat.chairs;
 
 import java.io.Serializable;
 
@@ -25,7 +25,25 @@ public class Chair implements Serializable {
 	@JsonProperty("id_geometry")
 	private int id_geometry;
 	
+	@JsonProperty("last_communication")
+	private String last_communication;
 	
+	@JsonProperty("previous_communication")
+	private String previous_communication;
+	
+	
+	public String getLast_communication() {
+		return last_communication;
+	}
+	public void setLast_communication(String last_communication) {
+		this.last_communication = last_communication;
+	}
+	public String getPrevious_communication() {
+		return previous_communication;
+	}
+	public void setPrevious_communication(String previous_communication) {
+		this.previous_communication = previous_communication;
+	}
 	public String getName() {
 		return name;
 	}
@@ -59,7 +77,8 @@ public class Chair implements Serializable {
 	@Override
 	public String toString() {
 		return "Chair [name=" + name + ", qrCode=" + qrCode + ", sensor=" + sensor + ", status=" + status
-				+ ", id_geometry=" + id_geometry + "]";
+				+ ", id_geometry=" + id_geometry + ", last_communication=" + last_communication
+				+ ", previous_communication=" + previous_communication + "]";
 	}
 	
 

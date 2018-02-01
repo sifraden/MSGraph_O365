@@ -39,6 +39,18 @@ public class MSGraphAPIServiceImpl implements MSGraphAPIService {
 	private String CLIENT_ID;
 	@Value( "${microsoft.graph.api.resource}" )
 	private String RESOURCE;
+	@Value( "${microsoft.office.api.find.rooms}" )
+	private String getRoomsUri;
+	@Value( "${microsoft.office.api.get.events}" )
+	private String getEventsUri;
+	@Value( "${microsoft.office.api.delete.event}" )
+	private String deleteEventUri;
+	@Value( "${microsoft.office.api.delete.event}" )
+	private String cancelEventUri;
+	@Value( "${microsoft.office.api.delete.or.get.event.room}" )
+	private String getEventsByRoomUri;
+	@Value( "${microsoft.office.api.delete.or.get.event.room}" )
+	private String deleteEventOfRoomUri;
 
 	public MSGraphAPIServiceImpl() {
 	}
@@ -90,7 +102,7 @@ public class MSGraphAPIServiceImpl implements MSGraphAPIService {
 	}
 
 	public String getListRooms(String accessToken, String tenant) throws Exception {
-		URL url = new URL(String.format("https://graph.microsoft.com/beta/me/findRooms", tenant, accessToken));
+		URL url = new URL(String.format(getRoomsUri, tenant, accessToken));
 
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 		// Set the appropriate header fields in the request header.
@@ -116,7 +128,7 @@ public class MSGraphAPIServiceImpl implements MSGraphAPIService {
 
 	public String getAllEvents(String accessToken, String tenant) throws Exception {
 		URL url = new URL(String.format(
-				"https://graph.microsoft.com/beta/me/events?$select=subject,body,bodyPreview,organizer,attendees,start,end,location",
+				getEventsUri,
 				tenant, accessToken));
 
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -152,7 +164,7 @@ public class MSGraphAPIServiceImpl implements MSGraphAPIService {
 	}
 
 	public boolean deleteEvent(String accessToken, String tenant, String id) throws IOException {
-		URL url = new URL(String.format("https://graph.microsoft.com/v1.0/me/events/" + id, tenant, accessToken));
+		URL url = new URL(String.format(deleteEventUri + id, tenant, accessToken));
 
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 		// Set the appropriate header fields in the request header.
@@ -167,7 +179,7 @@ public class MSGraphAPIServiceImpl implements MSGraphAPIService {
 
 	public boolean cancelEvent(String accessToken, String tenant, String id) throws IOException {
 		URL url = new URL(
-				String.format("https://graph.microsoft.com/beta/me/events/" + id + "/cancel", tenant, accessToken));
+				String.format(cancelEventUri + id + "/cancel", tenant, accessToken));
 
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 		// Set the appropriate header fields in the request header.
@@ -188,7 +200,7 @@ public class MSGraphAPIServiceImpl implements MSGraphAPIService {
 	// https://graph.microsoft.com/beta/users/meetingroom1@myseatsas.onmicrosoft.com/events/AAMkADkyMDg4Zjk2LThhZjAtNDc4Mi05M2VjLTZjMWZjYjdkNzdmNABGAAAAAAAHXEJrEOrfQIvHEY4DAEATBwA6X8Ke3ThcSb0X2vhIiqCTAAAAAAENAAA6X8Ke3ThcSb0X2vhIiqCTAAAJQQY3AAA=
 	public boolean deleteEventOfRoom(String accessToken, String tenant, String id, String roomAddress)
 			throws IOException {
-		URL url = new URL(String.format("https://graph.microsoft.com/beta/users/" + roomAddress + "/events/" + id,
+		URL url = new URL(String.format(deleteEventOfRoomUri + roomAddress + "/events/" + id,
 				tenant, accessToken));
 
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -203,7 +215,7 @@ public class MSGraphAPIServiceImpl implements MSGraphAPIService {
 	}
 
 	public String getAllEventsByRoom(String accessToken, String tenant, String roomAddress) throws Exception {
-		URL url = new URL(String.format("https://graph.microsoft.com/beta/users/" + roomAddress + "/events", tenant,
+		URL url = new URL(String.format(getEventsByRoomUri + roomAddress + "/events", tenant,
 				accessToken));
 
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();

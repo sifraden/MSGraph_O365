@@ -1,4 +1,4 @@
-package com.demo.model.myseat;
+package com.demo.model.myseat.chairs;
 
 import java.io.Serializable;
 import java.util.List;

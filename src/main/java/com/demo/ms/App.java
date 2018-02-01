@@ -27,6 +27,7 @@ public class App {
 	private static String RESOURCE;
 	private static String USERNAME;
 	private static String PASSWORD;
+	private static String API_KEY;
 	
 	
 	@Bean
@@ -48,7 +49,10 @@ public class App {
 			LOG.info("Access Token - {}", result.getAccessToken());
 			LOG.info("Refresh Token - {}", result.getRefreshToken());
 			LOG.info("ID Token - {}", result.getIdToken());
-			LOG.info("MYSEAT {}", myseatApi.getChairs("TfkycL8tgKKbkEHEXlyzeKKRZ0pGtSKdZWC1xAkE"));
+			LOG.info("MYSEAT getChairs {}", myseatApi.getChairs(API_KEY));
+			
+			LOG.info("MYSEAT getChairsInGroup {}", myseatApi.getChairsInGroup(API_KEY, "244"));
+
 			LOG.info("*****************************************************");
 			LOG.info("***********************   ROOMS   *******************");
 			LOG.info(msGraphApi.getListRooms(result.getAccessToken(), "myseatsas.onmicrosoft.com"));
@@ -137,8 +141,15 @@ public class App {
 	public static String getResource() {
 		return RESOURCE;
 	}
-	
-	
-	
 
+	public static String getAPI_KEY() {
+		return API_KEY;
+	}
+
+	@Value( "${myseat.api.key}" )
+	public void setAPI_KEY(String aPI_KEY) {
+		API_KEY = aPI_KEY;
+	}
+	
+	
 }

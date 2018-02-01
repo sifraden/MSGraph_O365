@@ -1,4 +1,4 @@
-package com.demo.model.myseat;
+package com.demo.model.myseat.chairs;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
