@@ -2,6 +2,8 @@ package com.demo.api.msgraph;
 
 import java.io.IOException;
 
+import com.demo.model.msgraph.events.Events;
+import com.demo.model.msgraph.rooms.Rooms;
 import com.microsoft.aad.adal4j.AuthenticationResult;
 
 public interface MSGraphAPIService {
@@ -10,9 +12,9 @@ public interface MSGraphAPIService {
 	
 	public String getUsernamesFromGraph(String accessToken, String tenant) throws Exception;
 	
-	public String getListRooms(String accessToken, String tenant) throws Exception;
+	public Rooms getListRooms(String accessToken, String tenant) throws Exception;
 	
-	public String getAllEvents(String accessToken, String tenant) throws Exception;
+	public Events getAllEvents(String accessToken, String tenant) throws Exception;
 	
 	public boolean deleteEvent(String accessToken, String tenant, String id) throws IOException;
 	
@@ -20,6 +22,6 @@ public interface MSGraphAPIService {
 	
 	public boolean deleteEventOfRoom(String accessToken, String tenant, String id, String roomAddress) throws IOException;
 	
-	public String getAllEventsByRoom(String accessToken, String tenant, String roomAddress) throws Exception;
+	public Events getAllEventsByRoom(String accessToken, String tenant, String roomAddress) throws Exception;
 
 }

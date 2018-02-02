@@ -1,5 +1,11 @@
 package com.demo.ms;
 
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,12 +20,17 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
 import com.demo.api.msgraph.MSGraphAPIService;
 import com.demo.api.myseat.MySeatAPIService;
+import com.demo.model.msgraph.events.Attendees;
+import com.demo.model.msgraph.events.Event;
+import com.demo.model.msgraph.events.Events;
+import com.demo.model.msgraph.rooms.Room;
+import com.demo.model.msgraph.rooms.Rooms;
 import com.microsoft.aad.adal4j.AuthenticationResult;
 
 @Configuration
 @ComponentScan(basePackages = "com.demo")
 @PropertySource("classpath:application.properties")
-public class App {
+public class App extends TimerTask {
 	private static final Logger LOG = LoggerFactory.getLogger(App.class);
 
 	private static String AUTHORITY;
@@ -36,6 +47,17 @@ public class App {
 	}
 
 	public static void main(String[] args) {
+
+		Timer timer = new Timer();
+		timer.schedule(new App(), 0, 1000 * 60);
+		
+		//ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+		//executor.scheduleAtFixedRate(new App(), 0, 60, TimeUnit.SECONDS);
+	}
+
+
+	@Override
+	public void run() {
 		LOG.info("*****************************************************");
 		LOG.info("***************  Starting Process ... ***************");
 		LOG.info("*****************************************************");
@@ -55,16 +77,58 @@ public class App {
 
 			LOG.info("*****************************************************");
 			LOG.info("***********************   ROOMS   *******************");
-			LOG.info(msGraphApi.getListRooms(result.getAccessToken(), "myseatsas.onmicrosoft.com"));
+			Rooms rooms = msGraphApi.getListRooms(result.getAccessToken(), "myseatsas.onmicrosoft.com");
+			StringBuilder sb = new StringBuilder();
+			for (Room room : rooms.getRooms()) {
+				sb.append("\nName: " + room.getName() + "\n");
+				sb.append("Address: " + room.getAddress() + "\n");
+				sb.append("Type: " + room.getType());
+
+			}
+			LOG.info(sb.toString());
 			LOG.info("*****************************************************");
 
 			LOG.info("***********************   EVENTS   *******************");
-			LOG.info(msGraphApi.getAllEvents(result.getAccessToken(), "myseatsas.onmicrosoft.com"));
+			Events events = msGraphApi.getAllEvents(result.getAccessToken(), "myseatsas.onmicrosoft.com");
+			StringBuilder sbEvents = new StringBuilder();
+			LOG.info("Events return {}", events.getEvents().size());
+			for (Event event : events.getEvents()) {
+				sb.append("\nID: " + event.getId());
+				sb.append("\nSubject: " + event.getSubject());
+				sb.append("\nOrganizer: " + event.getOrganizer().getEmailAddress().getName() + " - "
+						+ event.getOrganizer().getEmailAddress().getAddress());
+				sb.append("\nDate début: " + event.getStart().getDatetime());
+				sb.append("\nDate fin: " + event.getEnd().getDatetime());
+				sb.append("\nAttendees: " + event.getAttendees().size());
+				for (Attendees attendee : event.getAttendees()) {
+					sb.append("\nAttendee: " + attendee.getEmailAddress().getName() + " - "
+							+ attendee.getEmailAddress().getAddress());
+				}
+
+			}
+			LOG.info(sbEvents.toString());
 			LOG.info("*****************************************************");
 
 			LOG.info("******************   EVENTS FOR A ROOM  **************");
-			LOG.info(msGraphApi.getAllEventsByRoom(result.getAccessToken(), "myseatsas.onmicrosoft.com",
-					"meetingroom2@myseatsas.onmicrosoft.com"));
+			Events eventsForRoom = msGraphApi.getAllEventsByRoom(result.getAccessToken(), "myseatsas.onmicrosoft.com",
+					"meetingroom2@myseatsas.onmicrosoft.com");
+			StringBuilder sbEventForRoom = new StringBuilder();
+			LOG.info("Events return {}", eventsForRoom.getEvents().size());
+			for (Event event : eventsForRoom.getEvents()) {
+				sb.append("\nID: " + event.getId());
+				sb.append("\nSubject: " + event.getSubject());
+				sb.append("\nOrganizer: " + event.getOrganizer().getEmailAddress().getName() + " - "
+						+ event.getOrganizer().getEmailAddress().getAddress());
+				sb.append("\nDate début: " + event.getStart().getDatetime());
+				sb.append("\nDate fin: " + event.getEnd().getDatetime());
+				sb.append("\nAttendees: " + event.getAttendees().size());
+				for (Attendees attendee : event.getAttendees()) {
+					sb.append("\nAttendee: " + attendee.getEmailAddress().getName() + " - "
+							+ attendee.getEmailAddress().getAddress());
+				}
+
+			}
+			LOG.info(sbEventForRoom.toString());
 			LOG.info("*****************************************************");
 
 			// LOG.info("******************** DELETE EVENT ****************");
@@ -86,10 +150,9 @@ public class App {
 
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
-
+		}		
 	}
-
+	
 	public static String getAUTHORITY() {
 		return AUTHORITY;
 	}

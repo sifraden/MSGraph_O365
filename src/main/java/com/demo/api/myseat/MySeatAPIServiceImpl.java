@@ -20,7 +20,7 @@ public class MySeatAPIServiceImpl implements MySeatAPIService {
 
 	RestTemplate restTemplate = new RestTemplate();
 
-	public String getChairs(String keyApi) throws Exception{
+	public Content getChairs(String keyApi) throws Exception{
 		LOG.debug("Entering to getChairs ");
 		CloseableHttpClient httpClient = HttpClients.custom().setSSLHostnameVerifier(new NoopHostnameVerifier())
 				.build();
@@ -32,10 +32,10 @@ public class MySeatAPIServiceImpl implements MySeatAPIService {
 		ObjectMapper objectMapper = new ObjectMapper();
 		Content chairs = objectMapper.readValue(response.getBody(), Content.class);
 		
-		return chairs.toString();
+		return chairs;
 	}
 
-	public String getChairsInGroup(String keyApi, String groupId) throws Exception {
+	public Content getChairsInGroup(String keyApi, String groupId) throws Exception {
 		LOG.debug("Entering to getChairsInGroup for this group: {} ", groupId);
 		CloseableHttpClient httpClient = HttpClients.custom().setSSLHostnameVerifier(new NoopHostnameVerifier())
 				.build();
@@ -47,7 +47,7 @@ public class MySeatAPIServiceImpl implements MySeatAPIService {
 		ObjectMapper objectMapper = new ObjectMapper();
 		Content chairs = objectMapper.readValue(response.getBody(), Content.class);
 		
-		return chairs.toString();
+		return chairs;
 	}
 
 }

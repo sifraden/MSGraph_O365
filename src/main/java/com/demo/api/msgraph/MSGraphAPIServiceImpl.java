@@ -101,7 +101,7 @@ public class MSGraphAPIServiceImpl implements MSGraphAPIService {
 		return builder.toString();
 	}
 
-	public String getListRooms(String accessToken, String tenant) throws Exception {
+	public Rooms getListRooms(String accessToken, String tenant) throws Exception {
 		URL url = new URL(String.format(getRoomsUri, tenant, accessToken));
 
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -114,19 +114,12 @@ public class MSGraphAPIServiceImpl implements MSGraphAPIService {
 
 		ObjectMapper objectMapper = new ObjectMapper();
 		Rooms rooms = objectMapper.readValue(goodRespStr, Rooms.class);
-		StringBuilder sb = new StringBuilder();
-		for (Room room : rooms.getRooms()) {
-			sb.append("\nName: " + room.getName() + "\n");
-			sb.append("Address: " + room.getAddress() + "\n");
-			sb.append("Type: " + room.getType());
-
-		}
-
-		return sb.toString();
+		
+		return rooms;
 
 	}
 
-	public String getAllEvents(String accessToken, String tenant) throws Exception {
+	public Events getAllEvents(String accessToken, String tenant) throws Exception {
 		URL url = new URL(String.format(
 				getEventsUri,
 				tenant, accessToken));
@@ -143,24 +136,8 @@ public class MSGraphAPIServiceImpl implements MSGraphAPIService {
 
 		ObjectMapper objectMapper = new ObjectMapper();
 		Events events = objectMapper.readValue(goodRespStr, Events.class);
-		StringBuilder sb = new StringBuilder();
-		LOG.info("Events return {}", events.getEvents().size());
-		for (Event event : events.getEvents()) {
-			sb.append("\nID: " + event.getId());
-			sb.append("\nSubject: " + event.getSubject());
-			sb.append("\nOrganizer: " + event.getOrganizer().getEmailAddress().getName() + " - "
-					+ event.getOrganizer().getEmailAddress().getAddress());
-			sb.append("\nDate début: " + event.getStart().getDatetime());
-			sb.append("\nDate fin: " + event.getEnd().getDatetime());
-			sb.append("\nAttendees: " + event.getAttendees().size());
-			for (Attendees attendee : event.getAttendees()) {
-				sb.append("\nAttendee: " + attendee.getEmailAddress().getName() + " - "
-						+ attendee.getEmailAddress().getAddress());
-			}
 
-		}
-
-		return sb.toString();
+		return events;
 	}
 
 	public boolean deleteEvent(String accessToken, String tenant, String id) throws IOException {
@@ -214,7 +191,7 @@ public class MSGraphAPIServiceImpl implements MSGraphAPIService {
 		return true;
 	}
 
-	public String getAllEventsByRoom(String accessToken, String tenant, String roomAddress) throws Exception {
+	public Events getAllEventsByRoom(String accessToken, String tenant, String roomAddress) throws Exception {
 		URL url = new URL(String.format(getEventsByRoomUri + roomAddress + "/events", tenant,
 				accessToken));
 
@@ -230,24 +207,8 @@ public class MSGraphAPIServiceImpl implements MSGraphAPIService {
 
 		ObjectMapper objectMapper = new ObjectMapper();
 		Events events = objectMapper.readValue(goodRespStr, Events.class);
-		StringBuilder sb = new StringBuilder();
-		LOG.info("Events return {}", events.getEvents().size());
-		for (Event event : events.getEvents()) {
-			sb.append("\nID: " + event.getId());
-			sb.append("\nSubject: " + event.getSubject());
-			sb.append("\nOrganizer: " + event.getOrganizer().getEmailAddress().getName() + " - "
-					+ event.getOrganizer().getEmailAddress().getAddress());
-			sb.append("\nDate début: " + event.getStart().getDatetime());
-			sb.append("\nDate fin: " + event.getEnd().getDatetime());
-			sb.append("\nAttendees: " + event.getAttendees().size());
-			for (Attendees attendee : event.getAttendees()) {
-				sb.append("\nAttendee: " + attendee.getEmailAddress().getName() + " - "
-						+ attendee.getEmailAddress().getAddress());
-			}
 
-		}
-
-		return sb.toString();
+		return events;
 	}
 
 }
