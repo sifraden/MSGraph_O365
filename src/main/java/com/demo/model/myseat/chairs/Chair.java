@@ -20,7 +20,7 @@ public class Chair implements Serializable {
 	private String sensor;
 	
 	@JsonProperty("status")
-	private String status;
+	private int status;
 	
 	@JsonProperty("id_geometry")
 	private int id_geometry;
@@ -56,10 +56,10 @@ public class Chair implements Serializable {
 	public void setQrCode(String qrCode) {
 		this.qrCode = qrCode;
 	}
-	public String getStatus() {
+	public int getStatus() {
 		return status;
 	}
-	public void setStatus(String status) {
+	public void setStatus(int status) {
 		this.status = status;
 	}
 	public int getId_geometry() {

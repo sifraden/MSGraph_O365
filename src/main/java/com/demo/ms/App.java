@@ -1,14 +1,14 @@
 package com.demo.ms;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -64,6 +64,11 @@ public class App extends TimerTask {
 		ApplicationContext context = new AnnotationConfigApplicationContext(App.class);
 		MSGraphAPIService msGraphApi = context.getBean(MSGraphAPIService.class);
 		MySeatAPIService myseatApi = context.getBean(MySeatAPIService.class);
+		
+	    TimeZone tz = TimeZone.getTimeZone("UTC");
+	    DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.s", Locale.CANADA_FRENCH);
+	    SimpleDateFormat dfMs = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	    df.setTimeZone(tz);
 
 		AuthenticationResult result;
 		try {
@@ -71,64 +76,10 @@ public class App extends TimerTask {
 			LOG.info("Access Token - {}", result.getAccessToken());
 			LOG.info("Refresh Token - {}", result.getRefreshToken());
 			LOG.info("ID Token - {}", result.getIdToken());
-			LOG.info("MYSEAT getChairs {}", myseatApi.getChairs(API_KEY));
-			
-			LOG.info("MYSEAT getChairsInGroup {}", myseatApi.getChairsInGroup(API_KEY, "244"));
 
 			LOG.info("*****************************************************");
-			LOG.info("***********************   ROOMS   *******************");
-			Rooms rooms = msGraphApi.getListRooms(result.getAccessToken(), "myseatsas.onmicrosoft.com");
-			StringBuilder sb = new StringBuilder();
-			for (Room room : rooms.getRooms()) {
-				sb.append("\nName: " + room.getName() + "\n");
-				sb.append("Address: " + room.getAddress() + "\n");
-				sb.append("Type: " + room.getType());
-
-			}
-			LOG.info(sb.toString());
 			LOG.info("*****************************************************");
-
-			LOG.info("***********************   EVENTS   *******************");
-			Events events = msGraphApi.getAllEvents(result.getAccessToken(), "myseatsas.onmicrosoft.com");
-			StringBuilder sbEvents = new StringBuilder();
-			LOG.info("Events return {}", events.getEvents().size());
-			for (Event event : events.getEvents()) {
-				sb.append("\nID: " + event.getId());
-				sb.append("\nSubject: " + event.getSubject());
-				sb.append("\nOrganizer: " + event.getOrganizer().getEmailAddress().getName() + " - "
-						+ event.getOrganizer().getEmailAddress().getAddress());
-				sb.append("\nDate début: " + event.getStart().getDatetime());
-				sb.append("\nDate fin: " + event.getEnd().getDatetime());
-				sb.append("\nAttendees: " + event.getAttendees().size());
-				for (Attendees attendee : event.getAttendees()) {
-					sb.append("\nAttendee: " + attendee.getEmailAddress().getName() + " - "
-							+ attendee.getEmailAddress().getAddress());
-				}
-
-			}
-			LOG.info(sbEvents.toString());
 			LOG.info("*****************************************************");
-
-			LOG.info("******************   EVENTS FOR A ROOM  **************");
-			Events eventsForRoom = msGraphApi.getAllEventsByRoom(result.getAccessToken(), "myseatsas.onmicrosoft.com",
-					"meetingroom2@myseatsas.onmicrosoft.com");
-			StringBuilder sbEventForRoom = new StringBuilder();
-			LOG.info("Events return {}", eventsForRoom.getEvents().size());
-			for (Event event : eventsForRoom.getEvents()) {
-				sb.append("\nID: " + event.getId());
-				sb.append("\nSubject: " + event.getSubject());
-				sb.append("\nOrganizer: " + event.getOrganizer().getEmailAddress().getName() + " - "
-						+ event.getOrganizer().getEmailAddress().getAddress());
-				sb.append("\nDate début: " + event.getStart().getDatetime());
-				sb.append("\nDate fin: " + event.getEnd().getDatetime());
-				sb.append("\nAttendees: " + event.getAttendees().size());
-				for (Attendees attendee : event.getAttendees()) {
-					sb.append("\nAttendee: " + attendee.getEmailAddress().getName() + " - "
-							+ attendee.getEmailAddress().getAddress());
-				}
-
-			}
-			LOG.info(sbEventForRoom.toString());
 			LOG.info("*****************************************************");
 
 			// LOG.info("******************** DELETE EVENT ****************");
@@ -136,14 +87,49 @@ public class App extends TimerTask {
 			// "myseatsas.onmicrosoft.com",
 			// "AAMkADkyMDg4Zjk2LThhZjAtNDc4Mi05M2VjLTZjMWZjYjdkNzdmNABGAAAAAAAHXEJrEOrfQIvHEY4DAEATBwA6X8Ke3ThcSb0X2vhIiqCTAAAAAAENAAA6X8Ke3ThcSb0X2vhIiqCTAAAJQQY4AAA="));
 			// LOG.info("*****************************************************");
-
-			LOG.info("**************   DELETE EVENT OF A ROOM  *************");
-			LOG.info("Delete events of a room - " + msGraphApi.deleteEventOfRoom(result.getAccessToken(),
+			//LOG.info("**************   DELETE EVENT OF A ROOM  *************");
+/*			msGraphApi.verifyAndDeleteEventByRoom(result.getAccessToken(),
 					"myseatsas.onmicrosoft.com",
-					"AAMkADc1MGU2YzY4LTRmYmItNGFkMC04NWJhLWMyN2ZiMWY0NjRkNABGAAAAAACaUNJInvR4To1pe8tf_0DwBwBKXwdtgSEoQp-cjax6mKnZAAAAAAENAABKXwdtgSEoQp-cjax6mKnZAAAJMiC4AAA=",
-					"meetingroom2@myseatsas.onmicrosoft.com"));
-			LOG.info("*****************************************************");
+					"meetingroom2@myseatsas.onmicrosoft.com",
+					"AAMkADc1MGU2YzY4LTRmYmItNGFkMC04NWJhLWMyN2ZiMWY0NjRkNABGAAAAAACaUNJInvR4To1pe8tf_0DwBwBKXwdtgSEoQp-cjax6mKnZAAAAAAENAABKXwdtgSEoQp-cjax6mKnZAAAJMiC4AAA=");
+			LOG.info("*****************************************************");*/
+						
+			Rooms rooms = msGraphApi.getListRooms(result.getAccessToken(), "myseatsas.onmicrosoft.com");
+			for (Room room : rooms.getRooms()) {
+				LOG.info("Name: {}", room.getName());
+				LOG.info("Address: {}", room.getAddress());
+				LOG.info("Type: {}",room.getType());
+								
+				Events eventsForRoom = msGraphApi.getAllEventsByRoom(result.getAccessToken(), "myseatsas.onmicrosoft.com",
+						room.getAddress());
+				
+				if (eventsForRoom.getId() == null)
+					LOG.info("No events found for this room address {} ! ", room.getAddress());
+				
+				for (Event event : eventsForRoom.getEvents()) {
+					LOG.info("******************   EVENTS FOR A ROOM  **************");
+					LOG.info("ID: {}",event.getId());
+					LOG.info("Subject: {}", event.getSubject());
+					LOG.info("Organizer: {}", event.getOrganizer().getEmailAddress().getName() + " - "
+							+ event.getOrganizer().getEmailAddress().getAddress());
+					LOG.info("Date début: {}", dfMs.format(df.parse(event.getStart().getDatetime())));
+					LOG.info("Date fin: {}", dfMs.format(df.parse(event.getEnd().getDatetime())));
 
+					LOG.info("Attendees: {}", event.getAttendees().size());
+					for (Attendees attendee : event.getAttendees()) {
+						LOG.info("Attendee: {}", attendee.getEmailAddress().getName() + " - "
+								+ attendee.getEmailAddress().getAddress());
+					}
+					LOG.info("*****************************************************");
+					
+					msGraphApi.verifyAndDeleteEventByRoom(result.getAccessToken(),
+							"myseatsas.onmicrosoft.com",
+							room.getAddress(),
+							event.getId(),
+							myseatApi.getChairsInGroup(API_KEY, "244"));
+				}
+			}
+	
 			LOG.info("*****************************************************");
 			LOG.info("***************  Finish Process. ***************");
 			LOG.info("*****************************************************");
