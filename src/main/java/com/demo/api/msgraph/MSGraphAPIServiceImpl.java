@@ -4,13 +4,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Locale;
-import java.util.TimeZone;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -21,18 +14,11 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.demo.api.myseat.MySeatAPIService;
-import com.demo.model.msgraph.events.Attendees;
-import com.demo.model.msgraph.events.Event;
 import com.demo.model.msgraph.events.Events;
-import com.demo.model.msgraph.rooms.Room;
 import com.demo.model.msgraph.rooms.Rooms;
-import com.demo.model.myseat.chairs.Chair;
-import com.demo.model.myseat.chairs.Content;
 import com.demo.utils.HttpClientHelper;
 import com.demo.utils.JSONHelper;
 import com.demo.utils.User;
@@ -63,8 +49,6 @@ public class MSGraphAPIServiceImpl implements MSGraphAPIService {
 	@Value("${microsoft.office.api.delete.or.get.event.room}")
 	private String deleteEventOfRoomUri;
 
-	@Autowired
-	private MySeatAPIService mySeatAPIService;
 
 	public MSGraphAPIServiceImpl() {
 	}
@@ -243,54 +227,5 @@ public class MSGraphAPIServiceImpl implements MSGraphAPIService {
 
 	}
 
-	public void verifyAndDeleteEventByRoom(String accessToken, String tenant, String roomAddress, String eventId,
-			Content chairs) throws Exception {
-		LOG.info(" [ verifyAndDeleteEventByRoom for this room address {} and this event ID {} ]", roomAddress, eventId);
-	    TimeZone tz = TimeZone.getTimeZone("UTC");
-	    DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.s", Locale.CANADA_FRENCH);
-	    SimpleDateFormat dfMs = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-	    df.setTimeZone(tz);
-		Events events = getOnlyEventByRoomAddressAndId(accessToken, tenant, roomAddress, eventId);
-		boolean deleted = false;
-		boolean toRemove = false;
-		if (events != null) {
-			toRemove = checkSensorState(dfMs.format(df.parse(events.getStart().getDatetime())), chairs);
-
-			if (toRemove)
-				deleted = deleteEventOfRoom(accessToken, tenant, eventId, roomAddress);
-
-			if (deleted)
-				LOG.info("The event {} was deleted successfully !", eventId);
-		} else
-			LOG.info("Events are Empty for this room address {} ", roomAddress);
-
-	}
-
-	public boolean checkSensorState(String dateStartEvent, Content chairs) {
-		boolean toRemove = false;
-		int decision = 0;
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-		LocalDateTime startDateEvent = LocalDateTime.parse(dateStartEvent, formatter);
-		for (Chair chair : chairs.getChairs().getChairs()) {
-			LocalDateTime dateLastCommunitationSensor = LocalDateTime.parse(chair.getLast_communication(), formatter);
-			long diffInMinute = Duration.between(startDateEvent, dateLastCommunitationSensor).toMinutes();
-			LOG.info("Difference between dateStartEvent {} and lastComSensor {} is: {}", startDateEvent,
-					dateLastCommunitationSensor, diffInMinute);
-			if (diffInMinute >= 15) {
-				if (chair.getStatus() == 1) {
-					LOG.info("- The chair is busy -");
-					break;
-				} else {
-					LOG.info("- The chair is free -");
-					toRemove = true;
-				}
-
-			}
-		}
-
-		LOG.info("ToRemove {} ", toRemove);
-		return toRemove;
-
-	}
 
 }
